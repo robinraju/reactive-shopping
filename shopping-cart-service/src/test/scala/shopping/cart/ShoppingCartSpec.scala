@@ -6,6 +6,7 @@ import akka.persistence.testkit.scaladsl.EventSourcedBehaviorTestKit
 import com.typesafe.config.ConfigFactory
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.wordspec.AnyWordSpecLike
+import shopping.cart.ShoppingCart.Summary
 
 object ShoppingCartSpec {
   val config = ConfigFactory
@@ -71,6 +72,18 @@ class ShoppingCartSpec
         eventSourcedTestKit.runCommand[StatusReply[ShoppingCart.Summary]](
           ShoppingCart.AddItem("bar", 13, _))
       result3.reply.isError should ===(true)
+    }
+
+    "get" in {
+      val result1 =
+        eventSourcedTestKit.runCommand[StatusReply[ShoppingCart.Summary]](
+          ShoppingCart.AddItem("foo", 42, _))
+      result1.reply.isSuccess should ===(true)
+
+      val result2 = eventSourcedTestKit.runCommand[Summary](ShoppingCart.Get)
+
+      result2.reply should ===(
+        ShoppingCart.Summary(Map("foo" -> 42), checkedOut = false))
     }
   }
 }

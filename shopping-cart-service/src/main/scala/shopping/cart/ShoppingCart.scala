@@ -35,6 +35,8 @@ object ShoppingCart {
   final case class Checkout(replyTo: ActorRef[StatusReply[Summary]])
       extends Command
 
+  final case class Get(replyTo: ActorRef[Summary]) extends Command
+
   // Response
   final case class Summary(items: Map[String, Int], checkedOut: Boolean)
       extends CborSerializable
@@ -116,6 +118,8 @@ object ShoppingCart {
             .persist(CheckedOut(cartId, Instant.now()))
             .thenReply(replyTo)(updatedCart =>
               StatusReply.Success(updatedCart.toSummary))
+
+      case Get(replyTo) => Effect.reply(replyTo)(state.toSummary)
     }
   }
 
