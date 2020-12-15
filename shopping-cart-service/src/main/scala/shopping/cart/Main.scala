@@ -7,6 +7,7 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.Behavior
 import akka.management.cluster.bootstrap.ClusterBootstrap
 import akka.management.scaladsl.AkkaManagement
+import akka.stream.alpakka.cassandra.scaladsl.CassandraSessionRegistry
 
 object Main {
 
@@ -28,12 +29,23 @@ class Main(context: ActorContext[Nothing])
 
   ShoppingCart.init(system)
 
+  val session =
+    CassandraSessionRegistry(system).sessionFor("akka.persistence.cassandra")
+  val itemPopularityKeyspace =
+    system.settings.config
+      .getString("akka.projection.cassandra.offset-store.keyspace")
+  val itemPopularityRepository =
+    new ItemPopularityRepositoryImpl(session, itemPopularityKeyspace)(
+      system.executionContext)
+  ItemPopularityProjection.init(system, itemPopularityRepository)
+
   val grpcInterface =
     system.settings.config.getString("shopping-cart-service.grpc.interface")
   val grpcPort =
     system.settings.config.getInt("shopping-cart-service.grpc.port")
 
-  val grpcService = new ShoppingCartServiceImpl(system)
+  val grpcService =
+    new ShoppingCartServiceImpl(system, itemPopularityRepository)
 
   ShoppingCartServer.start(grpcInterface, grpcPort, system, grpcService)
 

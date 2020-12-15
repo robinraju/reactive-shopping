@@ -152,13 +152,17 @@ object ShoppingCart {
 
   val EntityKey: EntityTypeKey[Command] = EntityTypeKey[Command]("ShoppingCart")
 
+  val tags = Vector.tabulate(5)(i => s"cart-$i")
+
   def init(system: ActorSystem[_]): Unit = {
     ClusterSharding(system).init(Entity(EntityKey) { entityContext =>
-      ShoppingCart(entityContext.entityId)
+      val i = math.abs(entityContext.entityId.hashCode % tags.size)
+      val selectedTag = tags(i)
+      ShoppingCart(entityContext.entityId, selectedTag)
     })
   }
 
-  def apply(cartId: String): Behavior[Command] = {
+  def apply(cartId: String, projectionTag: String): Behavior[Command] = {
     EventSourcedBehavior
       .withEnforcedReplies[Command, Event, State](
         persistenceId = PersistenceId.of(EntityKey.name, cartId),
@@ -166,6 +170,7 @@ object ShoppingCart {
         commandHandler =
           (state, command) => handleCommand(cartId, state, command),
         eventHandler = (state, event) => handleEvent(state, event))
+      .withTagger(_ => Set(projectionTag))
       .withRetention(RetentionCriteria
         .snapshotEvery(numberOfEvents = 100, keepNSnapshots = 3))
       .onPersistFailure(

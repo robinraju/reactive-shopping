@@ -14,7 +14,9 @@ import shopping.cart.proto.{
 
 import scala.concurrent.{ Future, TimeoutException }
 
-class ShoppingCartServiceImpl(system: ActorSystem[_])
+class ShoppingCartServiceImpl(
+    system: ActorSystem[_],
+    itemPopularityRepository: ItemPopularityRepository)
     extends proto.ShoppingCartService {
 
   import system.executionContext
@@ -75,5 +77,15 @@ class ShoppingCartServiceImpl(system: ActorSystem[_])
     val reply = entityRef.ask(ShoppingCart.Get)
     val response = reply.map(cart => toProtoCart(cart))
     convertError(response)
+  }
+
+  override def getItemPopularity(in: proto.GetItemPopularityRequest)
+      : Future[proto.GetItemPopularityResponse] = {
+    itemPopularityRepository.getItem(in.itemId).map {
+      case Some(count) =>
+        proto.GetItemPopularityResponse(in.itemId, count)
+      case None =>
+        proto.GetItemPopularityResponse(in.itemId, 0L)
+    }
   }
 }
