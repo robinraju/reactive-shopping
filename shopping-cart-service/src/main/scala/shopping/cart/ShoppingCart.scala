@@ -135,6 +135,8 @@ object ShoppingCart {
       case cmd: Checkout =>
         Effect.reply(cmd.replyTo)(
           StatusReply.Error("Can't checkout already checked out shopping cart"))
+
+      case Get(replyTo) => Effect.reply(replyTo)(state.toSummary)
     }
   }
 

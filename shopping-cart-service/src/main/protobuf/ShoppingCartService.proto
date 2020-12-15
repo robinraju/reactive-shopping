@@ -7,6 +7,8 @@ package shoppingcart;
 
 service ShoppingCartService {
   rpc AddItem (AddItemRequest) returns (Cart) {}
+  rpc Checkout (CheckoutRequest) returns (Cart) {}
+  rpc GetCart (GetCartRequest) returns (Cart) {}
 }
 
 message AddItemRequest {
@@ -17,9 +19,18 @@ message AddItemRequest {
 
 message Cart {
  repeated Item items = 1;
+ bool checkedOut = 2;
 }
 
 message Item {
   string itemId = 1;
   int32 quantity = 2;
+}
+
+message CheckoutRequest {
+  string cartId = 1;
+}
+
+message GetCartRequest {
+  string cartId = 1;
 }
