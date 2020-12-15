@@ -37,6 +37,8 @@ object ShoppingCart {
 
   final case class Get(replyTo: ActorRef[Summary]) extends Command
 
+  //TODO: https://developer.lightbend.com/docs/akka-platform-guide/microservices-tutorial/complete-entity.html#_optional_commands_and_events
+
   // Response
   final case class Summary(items: Map[String, Int], checkedOut: Boolean)
       extends CborSerializable
