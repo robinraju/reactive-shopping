@@ -37,7 +37,9 @@ class Main(context: ActorContext[Nothing])
   val itemPopularityRepository =
     new ItemPopularityRepositoryImpl(session, itemPopularityKeyspace)(
       system.executionContext)
+
   ItemPopularityProjection.init(system, itemPopularityRepository)
+  PublishEventsProjection.init(system)
 
   val grpcInterface =
     system.settings.config.getString("shopping-cart-service.grpc.interface")
