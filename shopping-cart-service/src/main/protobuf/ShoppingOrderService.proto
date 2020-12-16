@@ -8,7 +8,7 @@ package shoppingorder;
 // gRPC definition for shopping order service
 
 service ShoppingOrderService {
-  rpc order (OrderRequest) returns (OrderResponse) {}
+  rpc Order (OrderRequest) returns (OrderResponse) {}
 }
 
 message OrderRequest {

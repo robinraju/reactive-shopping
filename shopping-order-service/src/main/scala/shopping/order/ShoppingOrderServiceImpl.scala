@@ -1,15 +1,11 @@
 package shopping.order
 
 import org.slf4j.LoggerFactory
-import shopping.order.proto.{
-  OrderRequest,
-  OrderResponse,
-  ShoppingOrderService
-}
+import shopping.order.proto.{ OrderRequest, OrderResponse }
 
 import scala.concurrent.Future
 
-class ShoppingOrderServiceImpl extends ShoppingOrderService {
+class ShoppingOrderServiceImpl extends proto.ShoppingOrderService {
 
   val logger = LoggerFactory.getLogger(getClass)
 
