@@ -26,6 +26,8 @@ class Main(context: ActorContext[Nothing])
   AkkaManagement(system).start()
   ClusterBootstrap(system).start()
 
+  ShoppingCartEventConsumer.init(system)
+
   override def onMessage(msg: Nothing): Behavior[Nothing] =
     this
 }
